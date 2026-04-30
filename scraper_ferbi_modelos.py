@@ -63,13 +63,16 @@ def parse_product(session: requests.Session, url: str):
             attrs[attr_name] = list(dict.fromkeys(values))
 
     price_text = ''
+    price_value = ''
     price_node = soup.select_one('span.oe_price .oe_currency_value, .oe_price .oe_currency_value')
     if price_node:
-        price_text = clean(price_node.get_text())
-        if price_text and not price_text.startswith('$'):
-            price_text = f'$ {price_text}'
+        raw = clean(price_node.get_text())
+        # Normalize to comparable ARS style: 79300,85
+        price_text = raw.replace('.', '')
+        # Also provide numeric-friendly value: 79300.85
+        price_value = price_text.replace(',', '.')
 
-    return phone_name, attrs, price_text
+    return phone_name, attrs, price_text, price_value
 
 
 def pick_attr(attrs: dict, key_type: str):
@@ -102,7 +105,7 @@ def main():
     rows = []
 
     for product_url, listing_url in unique_products.items():
-        phone_name, attrs, price_text = parse_product(session, product_url)
+        phone_name, attrs, price_text, price_value = parse_product(session, product_url)
         phone_id_match = re.search(r'-(\d+)(?:\?|$)', product_url)
         phone_id = phone_id_match.group(1) if phone_id_match else ''
 
@@ -123,6 +126,7 @@ def main():
             'status': '|'.join(conditions),
             'storage_options_gb': '|'.join(memories),
             'price_text': price_text,
+            'price_value': price_value,
             'price_currency': 'ARS',
             'ferbi_colores': '|'.join(colors),
             'ferbi_marcas': '|'.join(brands),
