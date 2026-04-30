@@ -19,9 +19,6 @@ OUT_DIR = Path(__file__).resolve().parent / 'dataset'
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 OUT_CSV = OUT_DIR / 'ferbi_celulares_modelos.csv'
 
-ALLOWED_CONDITION = {'Como Nuevo', 'Re Bueno', 'Bueno'}
-
-
 def clean(text: str) -> str:
     return re.sub(r'\s+', ' ', text or '').strip()
 
@@ -107,9 +104,6 @@ def main():
         memories = pick_attr(attrs, 'memory')
         brands = pick_attr(attrs, 'brand')
 
-        valid_conditions = [c for c in conditions if c in ALLOWED_CONDITION]
-        enum_ok = len(valid_conditions) == len(conditions) if conditions else True
-
         rows.append({
             'brand_slug': 'ferbi',
             'brand_id': 'ferbi',
@@ -119,31 +113,12 @@ def main():
             'image_url': '',
             'listing_page_url': listing_url,
             'scraped_at_utc': scraped_at,
-            'announced_year': '',
             'status': '|'.join(conditions),
-            'os': '',
-            'chipset': '',
-            'cpu': '',
-            'gpu': '',
-            'display_size_in': '',
-            'display_resolution': '',
-            'display_refresh_hz': '',
-            'battery_mah': '',
-            'charging_w': '',
-            'ram_options_gb': '',
             'storage_options_gb': '|'.join(memories),
-            'main_camera_mp': '',
-            'selfie_camera_mp': '',
-            'has_5g': '',
-            'has_nfc': '',
-            'has_esim': '',
-            'has_sd_slot': '',
             'price_text': '',
             'price_currency': 'ARS',
-            'price_usd': '',
             'ferbi_colores': '|'.join(colors),
             'ferbi_marcas': '|'.join(brands),
-            'ferbi_condicion_enum_ok': str(enum_ok),
             'ferbi_attributes_json': json.dumps(attrs, ensure_ascii=False),
         })
 
